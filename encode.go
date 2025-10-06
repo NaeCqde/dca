@@ -49,7 +49,7 @@ type EncodeOptions struct {
 	BufferedFrames   int              // How big the frame buffer should be
 	VBR              bool             // Wether vbr is used or not (variable bitrate)
 	Threads          int              // Number of threads to use, 0 for auto
-	StartTime        int              // Start Time of the input stream in seconds
+	StartTime        float64              // Start Time of the input stream in seconds
 
 	// The ffmpeg audio filters to use, see https://ffmpeg.org/ffmpeg-filters.html#Audio-Filters for more info
 	// Leave empty to use no filters.
@@ -202,6 +202,7 @@ func (e *EncodeSession) run() {
 	// Launch ffmpeg with a variety of different fruits and goodies mixed togheter
 	args := []string{
 		"-stats",
+		"-user_agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0",
 		"-i", inFile,
 		"-reconnect", "1",
 		"-reconnect_at_eof", "1",
@@ -220,7 +221,7 @@ func (e *EncodeSession) run() {
 		"-frame_duration", strconv.Itoa(e.options.FrameDuration),
 		"-packet_loss", strconv.Itoa(e.options.PacketLoss),
 		"-threads", strconv.Itoa(e.options.Threads),
-		"-ss", strconv.Itoa(e.options.StartTime),
+		"-ss", strconv.FormatFloat(e.options.StartTime, 'f', -1, 64),
 	}
 
 	if e.options.AudioFilter != "" {
