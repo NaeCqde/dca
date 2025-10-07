@@ -53,8 +53,9 @@ type EncodeOptions struct {
 
 	// The ffmpeg audio filters to use, see https://ffmpeg.org/ffmpeg-filters.html#Audio-Filters for more info
 	// Leave empty to use no filters.
-	AudioFilter string
-	UserAgent   string
+	AudioFilter      string
+	UserAgent        string
+	FFmpegExecutable string
 
 	Comment string // Leave a comment in the metadata
 }
@@ -106,6 +107,7 @@ var StdEncodeOptions = &EncodeOptions{
 	BufferedFrames:   100, // At 20ms frames that's 2s
 	VBR:              true,
 	StartTime:        0,
+	FFmpegExecutable: "ffmpeg",
 }
 
 // EncodeStats is transcode stats reported by ffmpeg
@@ -235,7 +237,7 @@ func (e *EncodeSession) run() {
 
 	args = append(args, "pipe:1")
 
-	ffmpeg := exec.Command("ffmpeg", args...)
+	ffmpeg := exec.Command(e.options.FFmpegExecutable, args...)
 
 	// logln(ffmpeg.Args)
 
