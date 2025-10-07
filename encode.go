@@ -54,6 +54,7 @@ type EncodeOptions struct {
 	// The ffmpeg audio filters to use, see https://ffmpeg.org/ffmpeg-filters.html#Audio-Filters for more info
 	// Leave empty to use no filters.
 	AudioFilter string
+	UserAgent   string
 
 	Comment string // Leave a comment in the metadata
 }
@@ -200,9 +201,13 @@ func (e *EncodeSession) run() {
 	}
 
 	// Launch ffmpeg with a variety of different fruits and goodies mixed togheter
-	args := []string{
-		"-stats",
-		"-user_agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0",
+	args := []string{"-stats"}
+
+	if e.options.UserAgent != "" {
+		args = append(args, "-user_agent", e.options.UserAgent)
+	}
+
+	args = append(args, []string{
 		"-i", inFile,
 		"-reconnect", "1",
 		"-reconnect_at_eof", "1",
@@ -213,7 +218,6 @@ func (e *EncodeSession) run() {
 		"-f", "ogg",
 		"-vbr", vbrStr,
 		"-compression_level", strconv.Itoa(e.options.CompressionLevel),
-		"-vol", strconv.Itoa(e.options.Volume),
 		"-ar", strconv.Itoa(e.options.FrameRate),
 		"-ac", strconv.Itoa(e.options.Channels),
 		"-b:a", strconv.Itoa(e.options.Bitrate * 1000),
@@ -222,7 +226,7 @@ func (e *EncodeSession) run() {
 		"-packet_loss", strconv.Itoa(e.options.PacketLoss),
 		"-threads", strconv.Itoa(e.options.Threads),
 		"-ss", strconv.FormatFloat(e.options.StartTime, 'f', -1, 64),
-	}
+	}...)
 
 	if e.options.AudioFilter != "" {
 		// Lit af
